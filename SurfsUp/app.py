@@ -4,18 +4,20 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.automap import automap_base
 
 from flask import Flask, jsonify
+
 import datetime as dt
 
 
 #################################################
 # Database Setup
 #################################################
+# Create engine for DataBase queries
 engine = create_engine('sqlite:///Resources/hawaii.sqlite')
 
-# reflect an existing database into a new model
+# Reflect an existing database into a new model
 Base = automap_base()
 
-# reflect the tables
+# Reflect the tables
 Base.prepare(autoload_with = engine)
 
 # Save references to each table
