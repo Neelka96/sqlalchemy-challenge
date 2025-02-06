@@ -36,40 +36,107 @@ app = Flask(__name__)
 #################################################
 # Flask Routes
 #################################################
-@app.route('/')
-def index():
+# Variable Route Listings for Index
+route_home = '/'
+route_prcp = '/api/v1.0/precipitation'
+route_stations = '/api/v1.0/stations'
+route_tobs = '/api/v1.0/tobs'
+
+
+### Home Route
+### ----------
+@app.route(route_home)
+def home():
     '''Lists all available API Routes'''
     return(
         '<h1>Hawaii Weather Analysis</h1><br>'
         '<h2>Available API Routes:</h2><br>'
-        '<a href="/api/v1.0/precipitation"></a><br>'
-        '<a href=""></a><br>'
+        f'<a href="{route_prcp}">Precipitation (Inches) - Most recent year in hawaii.sqlite</a><br>'
+        f'<a href="{route_stations}">List of all observing Stations</a><br>'
         '<a href=""></a><br>'
     )
 
-@app.route('/api/v1.0/precipitation')
+### Precipitation Query Route
+### -------------------------
+@app.route(route_prcp)
 def precipitation_query():
-    '''Precipitation query results for last year'''
-    index()
-    with Session() as session:  # Find the most recent date in the data set.
+    '''Query for precipitation scores for last year of db'''
+    with Session() as session: # Finding `first_date`
         first_date = session.query(
             func.max(measurement.date)
             ).scalar()
     first_date = dt.datetime.strptime(first_date, '%Y-%m-%d')
     last_date = first_date - dt.timedelta(days = 365)
-
-    # Perform a query to retrieve the data and precipitation scores
     sel = [
         measurement.date
         ,measurement.prcp
     ]
-    with Session() as session:
+    with Session() as session: # Precipitation Scores
         data = session.query(*sel
             ).filter(measurement.date <= first_date
             ).filter(measurement.date >= last_date
             ).all()
+    json_ready = []
+    for date, prcp in data:
+        add_dict = {}
+        add_dict['date'] = date
+        add_dict['prcp'] = prcp
+        json_ready.append(add_dict)
+
+    return jsonify(json_ready)
+
+### All Stations Query Route
+### ------------------------
+@app.route(route_stations)
+def stations_query():
+    '''Query for full list of stations'''
+    sel = [
+        station.station
+        ,station.name
+        ,station.latitude
+        ,station.longitude
+        ,station.elevation
+    ]
+    with Session() as session:
+        data = session.query(*sel).all()
+    json_ready = []
+    for id, name, latitude, longitude, elevation in data:
+        add_dict = {}
+        add_dict['id'] = id
+        add_dict['name'] = name
+        add_dict['lat'] = latitude
+        add_dict['lng'] = longitude
+        add_dict['elevation'] = elevation
+        json_ready.append(add_dict)
+    return jsonify(json_ready)
+
+### Most Active Station Temperatures Query Route
+### --------------------------------------------
+@app.route(route_tobs)
+def tobs_query():
+    '''Query for last year of temp data for most active station'''
     
-    return jsonify(data)
+    station_count = func.count(measurement.station)
+    sel = [
+        measurement.station
+        ,station_count
+    ]
+    with Session() as session:
+        data = session.query(*sel
+            ).group_by(measurement.station
+            ).order_by(station_count.desc()
+            ).first()
+    most_active = data[0][0]
+
+    sel = [
+        measurement.tobs
+    ]
+    with Session() as session:
+        data = session.query(*sel
+            ).filter(measurement.station == most_active
+            ).filter(measurement.date <= first_date
+            ).filter(measurement.date >= last_date
+            ).all()
 
 if __name__ == '__main__':
     app.run(debug = True)
