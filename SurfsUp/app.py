@@ -41,6 +41,7 @@ route_home = '/'
 route_prcp = '/api/v1.0/precipitation'
 route_stations = '/api/v1.0/stations'
 route_tobs = '/api/v1.0/tobs'
+# route_start = '/api/v1.0/'
 
 
 ### Home Route
@@ -49,12 +50,14 @@ route_tobs = '/api/v1.0/tobs'
 def home():
     '''Lists all available API Routes'''
     return(
-        '<h1>Hawaii Weather Analysis</h1><br>'
-        '<h2>Available API Routes:</h2><br>'
-        f'<a href="{route_prcp}">Precipitation (Inches) - Most recent year in hawaii.sqlite</a><br>'
-        f'<a href="{route_stations}">List of all observing Stations</a><br>'
-        '<a href=""></a><br>'
+        '<h1>Hawaii Weather Analysis</h1></br>'
+        '<h2>Available API Routes:</h2></br>'
+        f'<a href="{route_prcp}">Precipitation (Inches) - Most recent year in hawaii.sqlite</a></br>'
+        f'<a href="{route_stations}">List of all observing Stations</a></br>'
+        f'<a href="{route_tobs}">Temperature observations for most recent year at most active station</a></br>'
+        '<a href=""></a></br>'
     )
+
 
 ### Precipitation Query Route
 ### -------------------------
@@ -73,17 +76,15 @@ def precipitation_query():
     ]
     with Session() as session: # Precipitation Scores
         data = session.query(*sel
-            ).filter(measurement.date <= first_date
             ).filter(measurement.date >= last_date
             ).all()
     json_ready = []
     for date, prcp in data:
-        add_dict = {}
-        add_dict['date'] = date
-        add_dict['prcp'] = prcp
+        add_dict = {date: prcp}
         json_ready.append(add_dict)
 
     return jsonify(json_ready)
+
 
 ### All Stations Query Route
 ### ------------------------
@@ -110,12 +111,18 @@ def stations_query():
         json_ready.append(add_dict)
     return jsonify(json_ready)
 
+
 ### Most Active Station Temperatures Query Route
 ### --------------------------------------------
 @app.route(route_tobs)
 def tobs_query():
     '''Query for last year of temp data for most active station'''
-    
+    with Session() as session: # Finding `first_date`
+        first_date = session.query(
+            func.max(measurement.date)
+            ).scalar()
+    first_date = dt.datetime.strptime(first_date, '%Y-%m-%d')
+    last_date = first_date - dt.timedelta(days = 365)
     station_count = func.count(measurement.station)
     sel = [
         measurement.station
@@ -126,17 +133,26 @@ def tobs_query():
             ).group_by(measurement.station
             ).order_by(station_count.desc()
             ).first()
-    most_active = data[0][0]
+    most_active = data[0]
 
     sel = [
-        measurement.tobs
+        measurement.date
+        ,measurement.tobs
     ]
     with Session() as session:
         data = session.query(*sel
             ).filter(measurement.station == most_active
-            ).filter(measurement.date <= first_date
             ).filter(measurement.date >= last_date
             ).all()
+    json_ready = []
+    for date, tobs in data:
+        add_dict = {}
+        add_dict['date'] = date
+        add_dict['tobs'] = tobs
+        json_ready.append(add_dict)
+    return jsonify(json_ready)
+
+
 
 if __name__ == '__main__':
     app.run(debug = True)
