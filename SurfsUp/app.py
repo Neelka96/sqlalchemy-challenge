@@ -90,7 +90,8 @@ def home():
         f'<a href="{route_prcp}">Precipitation (Inches) - Most recent year in hawaii.sqlite</a></br>'
         f'<a href="{route_stations}">List of all observing Stations</a></br>'
         f'<a href="{route_tobs}">Temperature observations for most recent year at most active station</a></br>'
-        '<a href="#"></a></br>'
+        f'<a href="{route_start}"></a></br>'
+        f'<a href="{route_end}"></a></br'
     )
 
 
@@ -114,7 +115,7 @@ def precipitation_query():
     json_ready = json_setup(
         route_prcp
         ,data_nest
-        ,desc = 'Precipitation scores for last year of data'
+        ,desc = 'Precipitation scores for last year of data.'
     )
     return jsonify(json_ready)
 
@@ -145,7 +146,7 @@ def stations_query():
     json_ready = json_setup(
         route_stations
         ,data_nest
-        ,desc = 'Full list of observation stations'
+        ,desc = 'Full list of observation stations.'
     )
     return jsonify(json_ready)
 
@@ -185,7 +186,7 @@ def tobs_query():
     json_ready = json_setup(
         route_tobs
         ,data_nest
-        ,desc = 'Last year of temperature data for most active station'
+        ,desc = 'Last year of temperature data for most active station.'
     )
     return jsonify(json_ready)
 
@@ -216,24 +217,32 @@ def temp_byDate(start = None, end = None):
         ,'TAVG': data[1]
         ,'TMAX': data[2]
     }
-    json_ready = json_setup(
-        route_start
-        ,data_nest
-        ,desc = 'Basic temperature stats (min, average, and max) for a specified start or start date'
-        ,params = {'start_date': start, 'end_date': end}
-    )
-    return jsonify(json_ready)
+    return data_nest
 
 
 ### Queries for User Filter in URL
 ### ------------------------------
 @app.route(route_start)
 def temp_filter_single(start):
-    return temp_byDate(start)
+    data_nest = temp_byDate(start)
+    json_ready = json_setup(
+        route_start
+        ,data_nest
+        ,desc = 'Basic temperature stats (min, avg, max) for a specified starting date, ends at most recent date.'
+        ,params = {'start_date': start, 'end_date': None}
+    )
+    return jsonify(json_ready)
 
 @app.route(route_end)
 def temp_filter_double(start, end):
-    return temp_byDate(start, end)
+    data_nest = temp_byDate(start, end)
+    json_ready = json_setup(
+        route_end
+        ,data_nest
+        ,desc = 'Basic temperature stats (min, avg, max) for a specified start and end date.'
+        ,params = {'start_date': start, 'end_date': end}
+    )
+    return jsonify(json_ready)
 
 
 if __name__ == '__main__':
