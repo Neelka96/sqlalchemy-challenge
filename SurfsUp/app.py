@@ -55,7 +55,7 @@ def home():
         f'<a href="{route_prcp}">Precipitation (Inches) - Most recent year in hawaii.sqlite</a></br>'
         f'<a href="{route_stations}">List of all observing Stations</a></br>'
         f'<a href="{route_tobs}">Temperature observations for most recent year at most active station</a></br>'
-        '<a href=""></a></br>'
+        '<a href="#"></a></br>'
     )
 
 
@@ -78,12 +78,25 @@ def precipitation_query():
         data = session.query(*sel
             ).filter(measurement.date >= last_date
             ).all()
-    json_ready = []
+        
+    json_api = {}
+    queryData = []
     for date, prcp in data:
         add_dict = {date: prcp}
-        json_ready.append(add_dict)
+        queryData.append(add_dict)
 
-    return jsonify(json_ready)
+    metaData = {
+        'current_route': route_prcp
+        ,'home_route': # TODO
+        # ,'static_url_path': app.static_url_path
+        # ,'__repr__': app.__repr__()
+        # ,'__dict__': app.__dict__
+        ,'data_points': len(queryData)
+    }
+    json_api['metadata'] = metaData
+    json_api['query_data'] = queryData
+
+    return jsonify(json_api)
 
 
 ### All Stations Query Route
@@ -100,7 +113,7 @@ def stations_query():
     ]
     with Session() as session:
         data = session.query(*sel).all()
-    json_ready = []
+    json_api = []
     for id, name, latitude, longitude, elevation in data:
         add_dict = {}
         add_dict['id'] = id
@@ -108,8 +121,8 @@ def stations_query():
         add_dict['lat'] = latitude
         add_dict['lng'] = longitude
         add_dict['elevation'] = elevation
-        json_ready.append(add_dict)
-    return jsonify(json_ready)
+        json_api.append(add_dict)
+    return jsonify(json_api)
 
 
 ### Most Active Station Temperatures Query Route
@@ -144,13 +157,13 @@ def tobs_query():
             ).filter(measurement.station == most_active
             ).filter(measurement.date >= last_date
             ).all()
-    json_ready = []
+    json_api = []
     for date, tobs in data:
         add_dict = {}
         add_dict['date'] = date
         add_dict['tobs'] = tobs
-        json_ready.append(add_dict)
-    return jsonify(json_ready)
+        json_api.append(add_dict)
+    return jsonify(json_api)
 
 
 
