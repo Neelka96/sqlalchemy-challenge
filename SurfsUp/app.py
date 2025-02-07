@@ -33,6 +33,37 @@ Session = sessionmaker(bind = engine)
 #################################################
 app = Flask(__name__)
 
+# Automatic Metadata Creation
+# ---------------------------
+def metadata_json(route, nest):
+    metadata = {
+        'current_route': route
+        ,'home_route': request.host 
+        ,'data_points': len(nest)
+    }
+    return metadata
+
+# JSON Template Wrapper for metadata_json()
+# -----------------------------------------
+def json_setup(route, nest):
+    json_api = {
+        'metadata': metadata_json(route, nest)
+        ,'result': nest
+    }
+    return json_api
+
+
+# Query for Globally Used Data 
+# ----------------------------
+with Session() as session: # Finding `first_date`
+    first_date = session.query(
+        func.max(measurement.date)
+        ).scalar()
+first_date = dt.datetime.strptime(first_date, '%Y-%m-%d')
+last_date = first_date - dt.timedelta(days = 365)
+app.config['LAST_YEAR_DATE'] = last_date
+
+
 #################################################
 # Flask Routes
 #################################################
@@ -42,6 +73,7 @@ route_prcp = '/api/v1.0/precipitation'
 route_stations = '/api/v1.0/stations'
 route_tobs = '/api/v1.0/tobs'
 # route_start = '/api/v1.0/'
+
 
 ### Home Route
 ### ----------
@@ -61,14 +93,9 @@ def home():
 ### Precipitation Query Route
 ### -------------------------
 @app.route(route_prcp)
-def precipitation_query(last_date):
+def precipitation_query():
     '''Query for precipitation scores for last year of db'''
-    with Session() as session: # Finding `first_date`
-        first_date = session.query(
-            func.max(measurement.date)
-            ).scalar()
-    first_date = dt.datetime.strptime(first_date, '%Y-%m-%d')
-    last_date = first_date - dt.timedelta(days = 365)
+    last_date = app.config['LAST_YEAR_DATE']
     sel = [
         measurement.date
         ,measurement.prcp
@@ -77,22 +104,11 @@ def precipitation_query(last_date):
         data = session.query(*sel
             ).filter(measurement.date >= last_date
             ).all()
-        
-    json_api = {}
-    queryData = []
+    data_nest = []
     for date, prcp in data:
-        add_dict = {date: prcp}
-        queryData.append(add_dict)
-
-    metaData = {
-        'current_route': route_prcp
-        ,'home_route': request.host 
-        ,'data_points': len(queryData)
-    }
-    json_api['metadata'] = metaData
-    json_api['query_data'] = queryData
-
-    return jsonify(json_api)
+        data_nest.append({date: prcp})
+    json_ready = json_setup(route_prcp, data_nest)
+    return jsonify(json_ready)
 
 
 ### All Stations Query Route
@@ -109,16 +125,17 @@ def stations_query():
     ]
     with Session() as session:
         data = session.query(*sel).all()
-    json_api = []
+    data_nest = []
     for id, name, latitude, longitude, elevation in data:
-        add_dict = {}
-        add_dict['id'] = id
-        add_dict['name'] = name
-        add_dict['lat'] = latitude
-        add_dict['lng'] = longitude
-        add_dict['elevation'] = elevation
-        json_api.append(add_dict)
-    return jsonify(json_api)
+        data_dict = {}
+        data_dict['id'] = id
+        data_dict['name'] = name
+        data_dict['lat'] = latitude
+        data_dict['lng'] = longitude
+        data_dict['elevation'] = elevation
+        data_nest.append(data_dict)
+    json_ready = json_setup(route_stations, data_nest)
+    return jsonify(json_ready)
 
 
 ### Most Active Station Temperatures Query Route
@@ -126,12 +143,7 @@ def stations_query():
 @app.route(route_tobs)
 def tobs_query():
     '''Query for last year of temp data for most active station'''
-    with Session() as session: # Finding `first_date`
-        first_date = session.query(
-            func.max(measurement.date)
-            ).scalar()
-    first_date = dt.datetime.strptime(first_date, '%Y-%m-%d')
-    last_date = first_date - dt.timedelta(days = 365)
+    last_date = app.config['LAST_YEAR_DATE']
     station_count = func.count(measurement.station)
     sel = [
         measurement.station
@@ -153,13 +165,14 @@ def tobs_query():
             ).filter(measurement.station == most_active
             ).filter(measurement.date >= last_date
             ).all()
-    json_api = []
+    data_nest = []
     for date, tobs in data:
-        add_dict = {}
-        add_dict['date'] = date
-        add_dict['tobs'] = tobs
-        json_api.append(add_dict)
-    return jsonify(json_api)
+        data_dict = {}
+        data_dict['date'] = date
+        data_dict['tobs'] = tobs
+        data_nest.append(data_dict)
+    json_ready = json_setup(route_tobs, data_nest)
+    return jsonify(json_ready)
 
 
 
