@@ -3,7 +3,7 @@ from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.automap import automap_base
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 
 import datetime as dt
 
@@ -43,7 +43,6 @@ route_stations = '/api/v1.0/stations'
 route_tobs = '/api/v1.0/tobs'
 # route_start = '/api/v1.0/'
 
-
 ### Home Route
 ### ----------
 @app.route(route_home)
@@ -62,7 +61,7 @@ def home():
 ### Precipitation Query Route
 ### -------------------------
 @app.route(route_prcp)
-def precipitation_query():
+def precipitation_query(last_date):
     '''Query for precipitation scores for last year of db'''
     with Session() as session: # Finding `first_date`
         first_date = session.query(
@@ -87,10 +86,7 @@ def precipitation_query():
 
     metaData = {
         'current_route': route_prcp
-        ,'home_route': # TODO
-        # ,'static_url_path': app.static_url_path
-        # ,'__repr__': app.__repr__()
-        # ,'__dict__': app.__dict__
+        ,'home_route': request.host 
         ,'data_points': len(queryData)
     }
     json_api['metadata'] = metaData
