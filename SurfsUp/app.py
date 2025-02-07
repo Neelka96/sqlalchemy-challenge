@@ -3,7 +3,7 @@ from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.automap import automap_base
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, abort
 
 import datetime as dt
 
@@ -190,33 +190,50 @@ def tobs_query():
     return jsonify(json_ready)
 
 
-@app.route(route_start)
-def temp_start_date(start):
+### Function to be used for Multiple API Calls
+### ------------------------------------------
+def temp_byDate(start = None, end = None):
     sel = [
         func.min(measurement.tobs)
         ,func.avg(measurement.tobs)
         ,func.max(measurement.tobs)
     ]
-    with Session() as session:
-        data = session.query(*sel
-            ).filter(measurement.date >= start).first()
+    if start and (not end):
+        with Session() as session:
+            data = session.query(*sel
+                ).filter(measurement.date >= start)
+    elif start and end:
+        with Session() as session:
+            data = session.query(*sel
+                ).filter(measurement.date >= start
+                ).filter(measurement.date <= end)
+    else:
+        print('Sorry, this API call is not supported yet. ERROR 404')
+        abort(404)
+    data = data.first()
     data_nest = {
-        'min': data[0]
-        ,'avg': data[1]
-        ,'max': data[2]
+        'TMIN': data[0]
+        ,'TAVG': data[1]
+        ,'TMAX': data[2]
     }
     json_ready = json_setup(
         route_start
         ,data_nest
         ,desc = 'Basic temperature stats (min, average, and max) for a specified start or start date'
-        ,params = {'start_date': start}
+        ,params = {'start_date': start, 'end_date': end}
     )
     return jsonify(json_ready)
 
-@app.route(route_end)
-def temp_end_date(start, end):
 
-    pass
+### Queries for User Filter in URL
+### ------------------------------
+@app.route(route_start)
+def temp_filter_single(start):
+    return temp_byDate(start)
+
+@app.route(route_end)
+def temp_filter_double(start, end):
+    return temp_byDate(start, end)
 
 
 if __name__ == '__main__':
