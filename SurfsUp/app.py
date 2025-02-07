@@ -35,19 +35,22 @@ app = Flask(__name__)
 
 # Automatic Metadata Creation
 # ---------------------------
-def metadata_json(route, nest):
+def metadata_json(route, nest, desc, params):
     metadata = {
         'current_route': route
         ,'home_route': request.host 
         ,'data_points': len(nest)
+        ,'info': desc
+        ,'params': params
+        ,'format': 'json'
     }
     return metadata
 
 # JSON Template Wrapper for metadata_json()
 # -----------------------------------------
-def json_setup(route, nest):
+def json_setup(route, nest, desc = 'None', params = 'None'):
     json_api = {
-        'metadata': metadata_json(route, nest)
+        'metadata': metadata_json(route, nest, desc, params)
         ,'result': nest
     }
     return json_api
@@ -72,7 +75,8 @@ route_home = '/'
 route_prcp = '/api/v1.0/precipitation'
 route_stations = '/api/v1.0/stations'
 route_tobs = '/api/v1.0/tobs'
-# route_start = '/api/v1.0/'
+route_start = '/api/v1.0/<start>'
+route_end = route_start + '/<end>'
 
 
 ### Home Route
@@ -107,7 +111,11 @@ def precipitation_query():
     data_nest = []
     for date, prcp in data:
         data_nest.append({date: prcp})
-    json_ready = json_setup(route_prcp, data_nest)
+    json_ready = json_setup(
+        route_prcp
+        ,data_nest
+        ,desc = 'Precipitation scores for last year of data'
+    )
     return jsonify(json_ready)
 
 
@@ -134,7 +142,11 @@ def stations_query():
         data_dict['lng'] = longitude
         data_dict['elevation'] = elevation
         data_nest.append(data_dict)
-    json_ready = json_setup(route_stations, data_nest)
+    json_ready = json_setup(
+        route_stations
+        ,data_nest
+        ,desc = 'Full list of observation stations'
+    )
     return jsonify(json_ready)
 
 
@@ -155,7 +167,6 @@ def tobs_query():
             ).order_by(station_count.desc()
             ).first()
     most_active = data[0]
-
     sel = [
         measurement.date
         ,measurement.tobs
@@ -171,9 +182,41 @@ def tobs_query():
         data_dict['date'] = date
         data_dict['tobs'] = tobs
         data_nest.append(data_dict)
-    json_ready = json_setup(route_tobs, data_nest)
+    json_ready = json_setup(
+        route_tobs
+        ,data_nest
+        ,desc = 'Last year of temperature data for most active station'
+    )
     return jsonify(json_ready)
 
+
+@app.route(route_start)
+def temp_start_date(start):
+    sel = [
+        func.min(measurement.tobs)
+        ,func.avg(measurement.tobs)
+        ,func.max(measurement.tobs)
+    ]
+    with Session() as session:
+        data = session.query(*sel
+            ).filter(measurement.date >= start).first()
+    data_nest = {
+        'min': data[0]
+        ,'avg': data[1]
+        ,'max': data[2]
+    }
+    json_ready = json_setup(
+        route_start
+        ,data_nest
+        ,desc = 'Basic temperature stats (min, average, and max) for a specified start or start date'
+        ,params = {'start_date': start}
+    )
+    return jsonify(json_ready)
+
+@app.route(route_end)
+def temp_end_date(start, end):
+
+    pass
 
 
 if __name__ == '__main__':
