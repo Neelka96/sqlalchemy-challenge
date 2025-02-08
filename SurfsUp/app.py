@@ -59,12 +59,18 @@ def json_setup(route, nest, desc = 'None', params = 'None'):
 # Query for Globally Used Data 
 # ----------------------------
 with Session() as session: # Finding `first_date`
-    first_date = session.query(
+    all_dates = session.query(
         func.max(measurement.date)
-        ).scalar()
-first_date = dt.datetime.strptime(first_date, '%Y-%m-%d')
-last_date = first_date - dt.timedelta(days = 365)
-app.config['LAST_YEAR_DATE'] = last_date
+        ,func.min(measurement.date)
+        ).first()
+    
+first_date = dt.datetime.strptime(all_dates[0], '%Y-%m-%d')
+deltaYear = first_date - dt.timedelta(days = 365)
+last_date = dt.datetime.strptime(all_dates[1], '%Y-%m-%d')
+
+app.config['FIRST_DATE'] = first_date
+app.config['DELTA_YEAR'] = deltaYear
+app.config['LAST_DATE'] = last_date
 
 
 #################################################
@@ -88,17 +94,16 @@ def home():
             'font-family: Verdana;'
             'padding: 10px;'
         '}'
+        '.date-subheader {'
+            'padding-left: 10px;'
+            'padding-top: 10px'
+        '}'
         '.route {'
             'font-weight: bold;'
         '}'
         '.route-display {'
             'font-family: monaco;'
             'border: 1px inset;'
-            # 'padding: 1px;'
-            # 'border-left: 3px solid black;'
-            # 'border-right: 3px solid black;'
-            # 'padding-left: 6px;'
-            # 'padding-right: 6px;'
         '}'
         '.static-route {'
             'border-color: rgb(180, 180, 250);'
@@ -107,6 +112,10 @@ def home():
         '.dynamic-route {'
             'border-color: rgb(250, 180, 180);'
             'box-shadow: -1.5px -1.5px rgb(250, 220, 220);'
+        '}'
+        'mark {'
+            'background-color: rgb(250, 175, 175);'
+            'color: ;'
         '}'
         '#api-desc {'
             'word-wrap: break-word;'
@@ -123,6 +132,10 @@ def home():
             'border-left: 5px solid red;'
             'background-color: rgb(250, 235, 235);'
         '}'
+        '#date-params {'
+            'border-left: 5px solid green;'
+            'background-color: rgb(235, 250, 235);'
+        '}'
     )
     sqlite_link = (
         '"https://github.com/Neelka96/sqlalchemy-challenge/'
@@ -131,7 +144,7 @@ def home():
     api_desc = (
         'Welcome to the Hawaii Climate Analysis API. There are only a few types '
         'of API calls available at this time. See "Available API Routes" for the '
-        'full listing. The purposes of this API has been limited to ensure it '
+        'full listing.<br>The purposes of this API has been limited to ensure it '
         'meets the stated criteria for this project.<br>'
         '<br>'
         'For the dynamic routes, please set the <start> and/or <end> routes '
@@ -141,57 +154,79 @@ def home():
         'Currently, queries are performed using a local sqlite database which is '
         'a major limitation. Later updates may resolve this issue.<br>'
         '<br>'
-        f'You can download a copy of the SQLite Database by <a href={sqlite_link}>clicking here!</a><br>'
+        f'You can also download a copy of the SQLite Database used in this API (for testing purposes) through the repo <a href={sqlite_link}>here!</a><br>'
         '<br>'
     )
     repo_link = 'https://github.com/Neelka96/sqlalchemy-challenge'
     profile_link = '"https://github.com/Neelka96"'
     author_info = (
-        f'This GitHub Repository: <a href={repo_link}>Click here</a><br>'
-        f'My GitHub Profile: <a href={profile_link}>Click here</a><br>'
+        '<footer>'
+            f'API GitHub Repository: <a href={repo_link}>Click here</a><br>'
+            f'My GitHub Profile: <a href={profile_link}>Neel Agarwal</a><br>'
+        '</footer>'
     )
     static_routes = (
         '<li>'
             f'<a class="route" href="{route_prcp}">Precipitation (Inches) -- Most recent year</a>'
             '<p>'
-                f'<span class="route-display static-route">{request.host}{route_prcp}'
+                f'API: <span class="route-display static-route">{request.host}{route_prcp}'
             '</p>'
         '</li>'
         '<li>'
             f'<a class="route" href="{route_stations}">All observing Stations (with station info)</a>'
             '<p>'
-                f'<span class="route-display static-route">{request.host}{route_stations}'
+                f'API: <span class="route-display static-route">{request.host}{route_stations}'
             '</p>'
         '</li>'
         '<li>'
             f'<a class="route" href="{route_tobs}">Temperature data -- Most recent year and most active station</a>'
             '<p>'
-                f'<span class="route-display static-route">{request.host}{route_tobs}</span>'
+                f'API: <span class="route-display static-route">{request.host}{route_tobs}</span>'
             '</p'
         '</li>'
     )
     dynamic_routes = (
         '<li>'
             f'<a class="route" href="{route_start}">Temperature data with `START` date to EOF Range</a>'
-            '<h4>URI API Syntax</h4>'
+            '<h4>Single Date API Syntax</h4>'
             '<p>'
-                f'<span class="route-display dynamic-route">{request.host}{route_start}&lt;start&gt;</span><br>'
+                f'API: <span class="route-display dynamic-route">{request.host}{route_start}<mark id="single-var">&lt;start&gt;</mark></span><br>'
                 'Replace &lt;start&gt; with date.<br>'
             '</p>'
         '</li>'
         '<li>'
             f'<a class="route" href="{route_end}">Temperature data with `START` date to `END` date Range</a>'
-            '<h4>URI API Syntax</h4>'
+            '<h4>Dual Date API Syntax</h4>'
             '<p>'
-                f'<span class="route-display dynamic-route">{request.host}{route_start}&lt;start&gt;/&lt;end&gt;</span><br>'
+                f'API: <span class="route-display dynamic-route">{request.host}{route_start}<mark id="dual-var">&lt;start&gt;/&lt;end&gt;</mark></span><br>'
                 'Replace &lt;start&gt; and &lt;end&gt; with dates.<br>'
             '</p>'
         '</li>'
-        '<hr>'
-        '<p>'
-            ' in the format of YYYY-MM-DD.<br>'
-            'Note: Years by themselves and months with the year included will also suffice for a parameter, however that is the limit.'
-        '</p>'
+    )
+    date_formats = (
+        '<li>'
+            '<p>'
+                'YYYY-MM-DD'
+            '</p>'
+        '</li>'
+        '<li>'
+            '<p>'
+                'YYYY-MM'
+            '</p>'
+        '</li>'
+        '<li>'
+            '<p>'
+                'YYYY'
+            '</p>'
+        '</li>'
+    )
+    date_limits = (
+        '<li>'
+            f'First Date in DB: <strong>{str(app.config['FIRST_DATE'])[:10]}</strong>'
+        '</li>'
+        '<li>'
+            f'Last Date in DB: <strong>{str(app.config['LAST_DATE'])[:10]}</strong>'
+        '</li>'
     )
     return(
         '<head>'
@@ -216,13 +251,24 @@ def home():
             '</h2>'
             '<div id="route-div">'
                 '<h3><u>Static Routes</u></h3>'
-                '<ul id="static-routes-list">'
-                    f'{static_routes}'
-                '</ul>'
+                    '<ul id="static-routes-list">'
+                        f'{static_routes}'
+                    '</ul>'
                 '<h3><u>Dynamic Routes</u></h3>'
-                '<ul id="dynamic-routes-list">'
-                    f'{dynamic_routes}'
-                '</ul>'
+                    '<ul id="dynamic-routes-list">'
+                        f'{dynamic_routes}'
+                    '</ul>'
+                '<h3><u>Accepted Date Parameters</u></h3>'
+                '<div id="date-params">'
+                    '<h4 class="date-subheader">Date Formatting</h4>'
+                        '<ul>'
+                            f'{date_formats}'
+                        '</ul>'
+                    '<h4 class="date-subheader">Date Limits</h4>'
+                        '<ul>'
+                            f'{date_limits}'
+                        '</ul>'
+                '</div>'
             '</div>'
         '<hr>'
         '<br>'
@@ -238,7 +284,7 @@ def home():
 @app.route(route_prcp)
 def precipitation_query():
     '''Query for precipitation scores for last year of db'''
-    last_date = app.config['LAST_YEAR_DATE']
+    last_date = app.config['MINUS_ONE_YEAR']
     sel = [
         measurement.date
         ,measurement.prcp
@@ -294,7 +340,7 @@ def stations_query():
 @app.route(route_tobs)
 def tobs_query():
     '''Query for last year of temp data for most active station'''
-    last_date = app.config['LAST_YEAR_DATE']
+    last_date = app.config['MINUS_ONE_YEAR']
     station_count = func.count(measurement.station)
     sel = [
         measurement.station
