@@ -76,7 +76,7 @@ route_prcp = '/api/v1.0/precipitation'
 route_stations = '/api/v1.0/stations'
 route_tobs = '/api/v1.0/tobs'
 route_start = '/api/v1.0/<start>'
-route_end = route_start + '/<end>'
+route_end = route_start + '<end>'
 
 
 ### Home Route
@@ -84,14 +84,112 @@ route_end = route_start + '/<end>'
 @app.route(route_home)
 def home():
     '''Lists all available API Routes'''
+    style = (
+        'body {font-family: Verdana;'
+            'padding: 10px;'
+        '}'
+        '#api-desc {word-wrap: break-word;}'
+        '#route-div {border-right: 3px solid black;'
+            'padding: 5px;'
+        '}'
+        '#static-routes {border-left: 5px solid blue;'
+            'background-color: rgb(235, 235, 250);'
+        '}'
+        '#dynamic-routes {border-left: 5px solid red;'
+            'background-color: rgb(250, 235, 235)'
+        '}'
+    )
+    sqlite_link = (
+        '"https://github.com/Neelka96/sqlalchemy-challenge/' + 
+        'raw/refs/heads/main/SurfsUp/Resources/hawaii.sqlite"'
+    )
+    api_desc = (
+        'Welcome to the Hawaii Climate Analysis API. There are only a few types ' +
+        'of API calls available at this time. See "Available API Routes" for the ' +
+        'full listing. The purposes of this API has been limited to ensure it ' +
+        'meets the stated criteria for this project.</br>' +
+        '</br>'
+        'For the dynamic routes, please set the <start> and/or <end> routes ' +
+        'manually. You may also click the link and then fill in bracketed `<>` ' +
+        'information.</br>' +
+        '</br>'
+        'Currently, queries are performed using a local sqlite database which is ' +
+        'a major limitation. Later updates may resolve this issue.</br>' +
+        '</br>' +
+        f'You can download a copy of the SQLite Database by <a href={sqlite_link}>clicking here!</a></br>' +
+        '</br>'
+    )
+    repo_link = 'https://github.com/Neelka96/sqlalchemy-challenge'
+    profile_link = '"https://github.com/Neelka96"'
+    author_info = (
+        f'GitHub Repository: <a href={repo_link}>Click here</a></br>' +
+        f'GitHub Profile: <a href={profile_link}>Click here</a></br>'
+    )
+    static_routes = (
+        '<li>'
+            f'<a href="{route_prcp}">Precipitation (Inches) -- Most recent year</a>'
+        '</li>'
+        '<li>'
+            f'<a href="{route_stations}">All observing Stations (with station info)</a>'
+        '</li>'
+        '<li>'
+            f'<a href="{route_tobs}">Temperature data -- Most recent year and most active station</a>'
+        '</li>'
+    )
+    dynamic_routes = (
+        '<li>'
+            f'<strong><a href="{route_start}">Temperature data with `START` date to EOF Range</a></strong>'
+            '<h4>URI API Syntax</h4>'
+            '<p>'
+                f'{request.host}{route_start}&lt;start&gt;: Replace &lt;start&gt; with date in format of YYYY-MM-DD.</br>'
+                'Note: Years by themselves and months with the year included will also suffice for a parameter, however that is the limit.'
+            '</p>'
+        '</li>'
+        '<li>'
+            f'<strong><a href="{route_end}">Temperature data with `START` date to `END` date Range</a></strong>'
+            '<h4>URI API Syntax</h4>'
+            '<p>'
+                f'{request.host}{route_end}&lt;start&gt;/&lt;end&gt;:'
+            '</p>'
+        '</li>'
+    )
     return(
-        '<h1>Hawaii Weather Analysis</h1></br>'
-        '<h2>Available API Routes:</h2></br>'
-        f'<a href="{route_prcp}">Precipitation (Inches) - Most recent year in hawaii.sqlite</a></br>'
-        f'<a href="{route_stations}">List of all observing Stations</a></br>'
-        f'<a href="{route_tobs}">Temperature observations for most recent year at most active station</a></br>'
-        f'<a href="{route_start}"></a></br>'
-        f'<a href="{route_end}"></a></br'
+        '<head>'
+            '<title>Hawaii Climate Analysis</title>'
+            '<meta charset="UTF-8">'
+            '<meta name="author" content="Neel Agarwal">'
+            '<style>'
+                f'{style}'
+            '</style>'
+        '</head>'
+        
+        '<body>'
+            '<h1>'
+                'Hawaii Climate Analysis'
+            '</h1>'
+            '<p id="api-desc">'
+                f'{api_desc}'
+            '</p>'
+        '<hr>'
+            '<h2>'
+            'Available API Routes:'
+            '</h2>'
+            '<div id="route-div">'
+                '<h3><u>Static Routes</u></h3>'
+                '<ul id="static-routes" class="route">'
+                    f'{static_routes}'
+                '</ul>'
+                '<h3><u>Dynamic Routes</u></h3>'
+                '<ul id="dynamic-routes">'
+                    f'{dynamic_routes}'
+                '</ul>'
+            '</div>'
+        '<hr>'
+        '</br>'
+            '<p>'
+                f'{author_info}'
+            '</p>'
+        '</body>'
     )
 
 
