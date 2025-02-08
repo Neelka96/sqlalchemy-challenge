@@ -71,87 +71,127 @@ app.config['LAST_YEAR_DATE'] = last_date
 # Flask Routes
 #################################################
 # Variable Route Listings for Index
-route_home = '/'
 route_prcp = '/api/v1.0/precipitation'
 route_stations = '/api/v1.0/stations'
 route_tobs = '/api/v1.0/tobs'
 route_start = '/api/v1.0/<start>'
-route_end = route_start + '<end>'
+route_end = '/api/v1.0/<start>/<end>'
 
 
 ### Home Route
 ### ----------
-@app.route(route_home)
+@app.route('/')
 def home():
     '''Lists all available API Routes'''
     style = (
-        'body {font-family: Verdana;'
+        'body {'
+            'font-family: Verdana;'
             'padding: 10px;'
         '}'
-        '#api-desc {word-wrap: break-word;}'
-        '#route-div {border-right: 3px solid black;'
+        '.route {'
+            'font-weight: bold;'
+        '}'
+        '.route-display {'
+            'font-family: monaco;'
+            'border: 1px inset;'
+            # 'padding: 1px;'
+            # 'border-left: 3px solid black;'
+            # 'border-right: 3px solid black;'
+            # 'padding-left: 6px;'
+            # 'padding-right: 6px;'
+        '}'
+        '.static-route {'
+            'border-color: rgb(180, 180, 250);'
+            'box-shadow: -1.5px -1.5px rgb(220, 220, 250);'
+        '}'
+        '.dynamic-route {'
+            'border-color: rgb(250, 180, 180);'
+            'box-shadow: -1.5px -1.5px rgb(250, 220, 220);'
+        '}'
+        '#api-desc {'
+            'word-wrap: break-word;'
+        '}'
+        '#route-div {'
+            'border-right: 1px solid gray;'
             'padding: 5px;'
         '}'
-        '#static-routes {border-left: 5px solid blue;'
+        '#static-routes-list {'
+            'border-left: 5px solid blue;'
             'background-color: rgb(235, 235, 250);'
         '}'
-        '#dynamic-routes {border-left: 5px solid red;'
-            'background-color: rgb(250, 235, 235)'
+        '#dynamic-routes-list {'
+            'border-left: 5px solid red;'
+            'background-color: rgb(250, 235, 235);'
         '}'
     )
     sqlite_link = (
-        '"https://github.com/Neelka96/sqlalchemy-challenge/' + 
+        '"https://github.com/Neelka96/sqlalchemy-challenge/'
         'raw/refs/heads/main/SurfsUp/Resources/hawaii.sqlite"'
     )
     api_desc = (
-        'Welcome to the Hawaii Climate Analysis API. There are only a few types ' +
-        'of API calls available at this time. See "Available API Routes" for the ' +
-        'full listing. The purposes of this API has been limited to ensure it ' +
-        'meets the stated criteria for this project.</br>' +
-        '</br>'
-        'For the dynamic routes, please set the <start> and/or <end> routes ' +
-        'manually. You may also click the link and then fill in bracketed `<>` ' +
-        'information.</br>' +
-        '</br>'
-        'Currently, queries are performed using a local sqlite database which is ' +
-        'a major limitation. Later updates may resolve this issue.</br>' +
-        '</br>' +
-        f'You can download a copy of the SQLite Database by <a href={sqlite_link}>clicking here!</a></br>' +
-        '</br>'
+        'Welcome to the Hawaii Climate Analysis API. There are only a few types '
+        'of API calls available at this time. See "Available API Routes" for the '
+        'full listing. The purposes of this API has been limited to ensure it '
+        'meets the stated criteria for this project.<br>'
+        '<br>'
+        'For the dynamic routes, please set the <start> and/or <end> routes '
+        'manually. You may also click the link and then fill in bracketed `<>` '
+        'information in your browser.<br>'
+        '<br>'
+        'Currently, queries are performed using a local sqlite database which is '
+        'a major limitation. Later updates may resolve this issue.<br>'
+        '<br>'
+        f'You can download a copy of the SQLite Database by <a href={sqlite_link}>clicking here!</a><br>'
+        '<br>'
     )
     repo_link = 'https://github.com/Neelka96/sqlalchemy-challenge'
     profile_link = '"https://github.com/Neelka96"'
     author_info = (
-        f'GitHub Repository: <a href={repo_link}>Click here</a></br>' +
-        f'GitHub Profile: <a href={profile_link}>Click here</a></br>'
+        f'This GitHub Repository: <a href={repo_link}>Click here</a><br>'
+        f'My GitHub Profile: <a href={profile_link}>Click here</a><br>'
     )
     static_routes = (
         '<li>'
-            f'<a href="{route_prcp}">Precipitation (Inches) -- Most recent year</a>'
+            f'<a class="route" href="{route_prcp}">Precipitation (Inches) -- Most recent year</a>'
+            '<p>'
+                f'<span class="route-display static-route">{request.host}{route_prcp}'
+            '</p>'
         '</li>'
         '<li>'
-            f'<a href="{route_stations}">All observing Stations (with station info)</a>'
+            f'<a class="route" href="{route_stations}">All observing Stations (with station info)</a>'
+            '<p>'
+                f'<span class="route-display static-route">{request.host}{route_stations}'
+            '</p>'
         '</li>'
         '<li>'
-            f'<a href="{route_tobs}">Temperature data -- Most recent year and most active station</a>'
+            f'<a class="route" href="{route_tobs}">Temperature data -- Most recent year and most active station</a>'
+            '<p>'
+                f'<span class="route-display static-route">{request.host}{route_tobs}</span>'
+            '</p'
         '</li>'
     )
     dynamic_routes = (
         '<li>'
-            f'<strong><a href="{route_start}">Temperature data with `START` date to EOF Range</a></strong>'
+            f'<a class="route" href="{route_start}">Temperature data with `START` date to EOF Range</a>'
             '<h4>URI API Syntax</h4>'
             '<p>'
-                f'{request.host}{route_start}&lt;start&gt;: Replace &lt;start&gt; with date in format of YYYY-MM-DD.</br>'
-                'Note: Years by themselves and months with the year included will also suffice for a parameter, however that is the limit.'
+                f'<span class="route-display dynamic-route">{request.host}{route_start}&lt;start&gt;</span><br>'
+                'Replace &lt;start&gt; with date.<br>'
             '</p>'
         '</li>'
         '<li>'
-            f'<strong><a href="{route_end}">Temperature data with `START` date to `END` date Range</a></strong>'
+            f'<a class="route" href="{route_end}">Temperature data with `START` date to `END` date Range</a>'
             '<h4>URI API Syntax</h4>'
             '<p>'
-                f'{request.host}{route_end}&lt;start&gt;/&lt;end&gt;:'
+                f'<span class="route-display dynamic-route">{request.host}{route_start}&lt;start&gt;/&lt;end&gt;</span><br>'
+                'Replace &lt;start&gt; and &lt;end&gt; with dates.<br>'
             '</p>'
         '</li>'
+        '<hr>'
+        '<p>'
+            ' in the format of YYYY-MM-DD.<br>'
+            'Note: Years by themselves and months with the year included will also suffice for a parameter, however that is the limit.'
+        '</p>'
     )
     return(
         '<head>'
@@ -176,16 +216,16 @@ def home():
             '</h2>'
             '<div id="route-div">'
                 '<h3><u>Static Routes</u></h3>'
-                '<ul id="static-routes" class="route">'
+                '<ul id="static-routes-list">'
                     f'{static_routes}'
                 '</ul>'
                 '<h3><u>Dynamic Routes</u></h3>'
-                '<ul id="dynamic-routes">'
+                '<ul id="dynamic-routes-list">'
                     f'{dynamic_routes}'
                 '</ul>'
             '</div>'
         '<hr>'
-        '</br>'
+        '<br>'
             '<p>'
                 f'{author_info}'
             '</p>'
