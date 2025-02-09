@@ -68,7 +68,7 @@ That serves the purposes of this project very well, as after I finish exploring 
 
 
 ### Directory Structure  
-```  
+```bash  
 sqlalchemy-challenge/  
 |  
 |—- SurfsUp/  
