@@ -88,6 +88,7 @@ This structure ensures all inputs are organized within their respective folders.
 
 ## Challenge Overview  
 The real purpose of this assignment is to explore using these technologies and methods in conjunction with each other, but within the scope of the project the purpose is the creation of multiple APIs that allow for calling to retrieve live JSON representation of queried data.  
+Queries were performed differently than how they were likely expected, using a `sessionmaker()` binding to the engine and `with as` to create short-scoped session context managers through the application to open and close sessions as quickly as possible. They are personally preferred here as closing sessions throughout the experimentation of the Jupyter Notebook is easy to forget with isolated cell block styling.  
 
 
 ### Part 1: Analyze/Explore Data  
