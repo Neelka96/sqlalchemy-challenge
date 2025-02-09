@@ -22,8 +22,7 @@
     - [Queries](#queries)  
 
 ## Introduction  
-Congratulations to me! I've decided to treat myself to a long holiday vacation in Honolulu, Hawaii.  
-To help with my trip planning, I'm going to do a climate analysis about the area.  
+Congratulations to me! I've decided to treat myself to a long holiday vacation in Honolulu, Hawaii. To help with my trip planning, I'm going to do a climate analysis about the area.  
 The following sections outline the steps that I'll need to take to accomplish this task.  
 
 
