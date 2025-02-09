@@ -17,13 +17,21 @@
 5. [Expected Results](#expected-results)  
     - [Queries](#queries)  
 
+> [!NOTE]  
+> All roleplaying instructions, rubric requirements, and Starter Code (with  
+> database and csv's) are provided by 2U/edX as part of their educational  
+> package provided with paid entry into the class.  
+
+
 ## Introduction  
 Congratulations to me! I've decided to treat myself to a long holiday vacation in Honolulu, Hawaii. To help with my trip planning, I'm going to do a climate analysis about the area.  
 In order to do so, I'll first use Jupyter Notebooks to write/run code in isolated code blocks so that I can experiment with my `SQL Alchemy` abstraction layer and ensure that I perform my queries correctly. I'll also do some basic analysis by using `Pandas` and `Matplotlib` to get a better grasp on my data and and provide a visual aid. Jupyter Notebook is excellent for testing purposes as it allows for easy running and printing of code blocks. This also means that after I ensure it's veracity, I can copy and paste desired queries inside of a regular python (.py) file to run as an executable!  
-That serves the purposes of this project very well, as after I finish exploring and doing my analysis of Hawaii's climate data I can create an application in a python file using `Flask` and `SQL Alchemy` to create APIs! `Flask` will allow for the exportation of python functions into specific webpage softlink routes, which can be filled with `SQL` queries performed with `SQL Alchemy`, as well as `HTML` and `CSS` code for any explanation or styling.  
+That serves the purposes of this project very well, as after I finish exploring and doing my analysis of Hawaii's climate data I can create an application in a python file using `Flask` and `SQL Alchemy` to create APIs! `Flask` will allow for the exportation of python functions into specific webpage softlink routes, which can be filled with `SQL` queries performed with `SQL Alchemy`, as well as `HTML` and `CSS` code for any explanation or styling. Now I'm prepared for my vacation!  
+
 
 
 ## Setup & Usage  
+
 
 ### Prerequisites  
 1. Python 3.x  
@@ -33,6 +41,7 @@ That serves the purposes of this project very well, as after I finish exploring 
 - DBMS: **SQLite 3.49.0**  by way of --> **SQL Alchemy**  
 
 [:arrow_up: Return to TOC](#table-of-contents)  
+
 
 ### Instructions  
 
@@ -50,6 +59,7 @@ That serves the purposes of this project very well, as after I finish exploring 
 4. Enjoy!  
 
 [:arrow_up: Return to TOC](#table-of-contents)  
+
 
 
 ### Directory Structure  
@@ -70,8 +80,10 @@ This structure ensures all inputs are organized within their respective folders.
 [:arrow_up: Return to TOC](#table-of-contents)  
 
 
+
 ## Challenge Overview  
 The real purpose of this assignment is to explore using these technologies and methods in conjunction with each other, but within the scope of the project the purpose is the creation of multiple APIs that allow for calling to retrieve live JSON representation of queried data.  
+
 
 ### Part 1: Analyze/Explore Data  
 First off, I'll need to use Python and SQLAlchemy to do a basic climate analysis and data exploration of my climate database. Specifically, I'll use SQLAlchemy's ORM to perform queries, Pandas for easy manipulation, and Matplotlib for visualization.  
@@ -81,6 +93,9 @@ The following list outlines steps taken to perform exploration and analysis:
 2. Use SQLAlchemy method automap_base() to reflect tables into classes and save references to the classes.  
 3. Link Python to the database by creating SQLAlchemy sessions.  
 4. Perform a precipitation analysis and station analysis...  
+
+[:arrow_up: Return to TOC](#table-of-contents)  
+
 
 ### Part 2: Design Climate App  
 The second part of this project is to create a functioning webpage based API that can be called  
@@ -97,5 +112,7 @@ to create retrievable JSON objects. The following are the Flask App routes that 
     - Queries dates/temperatures for the most active station of the prior year and returns the JSON.  
 5. **Route: /api/v1.0/&lt;start&gt;**  
     - Returns JSON of temperature minimum, average, and maximum for a given starting date, which will end at the end of the database.  
-6. **Route: /api/v1.0/<start>/<end>**  
+6. **Route: /api/v1.0/&lt;start&gt;/&lt;end&gt;**  
     - Returns JSON of temperature minimum, average, and maximum for a given starting and ending date.  
+
+[:arrow_up: Return to TOC](#table-of-contents)  
