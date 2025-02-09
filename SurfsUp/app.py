@@ -284,7 +284,7 @@ def home():
 @app.route(route_prcp)
 def precipitation_query():
     '''Query for precipitation scores for last year of db'''
-    last_date = app.config['MINUS_ONE_YEAR']
+    last_date = app.config['DELTA_YEAR']
     sel = [
         measurement.date
         ,measurement.prcp
@@ -340,7 +340,7 @@ def stations_query():
 @app.route(route_tobs)
 def tobs_query():
     '''Query for last year of temp data for most active station'''
-    last_date = app.config['MINUS_ONE_YEAR']
+    last_date = app.config['DELTA_YEAR']
     station_count = func.count(measurement.station)
     sel = [
         measurement.station
