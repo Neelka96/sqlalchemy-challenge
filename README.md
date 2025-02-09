@@ -27,15 +27,10 @@ The following sections outline the steps that I'll need to take to accomplish th
 
 
 ## Challenge Overview  
-The real purpose of this assignment is to explore using these technologies and methods in conjunction  
-with each other, but within the scope of the project the purpose is the creation of multiple APIs that  
-allow for calling to retrieve live JSON representation of queried data.  
+The real purpose of this assignment is to explore using these technologies and methods in conjunction with each other, but within the scope of the project the purpose is the creation of multiple APIs that allow for calling to retrieve live JSON representation of queried data.  
 
 ### Part 1: Analyze/Explore Data  
-First off, I'll need to use Python and SQLAlchemy to do a basic climate analysis and data exploration of  
-my climate database. Specifically, I'll use SQLAlchemy's ORM to perform queries, Pandas for easy  
-manipulation, and Matplotlib for visualization. The following list outlines steps taken to perform  
-exploration and analysis:  
+First off, I'll need to use Python and SQLAlchemy to do a basic climate analysis and data exploration of my climate database. Specifically, I'll use SQLAlchemy's ORM to perform queries, Pandas for easy manipulation, and Matplotlib for visualization. The following list outlines steps taken to perform exploration and analysis:  
 
 1. Use SQLAlchemy method create_engine() to connect to the SQLite database.  
 2. Use SQLAlchemy method automap_base() to reflect tables into classes and save references to the classes.  
