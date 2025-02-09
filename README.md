@@ -13,9 +13,14 @@
 3. [Challenge Overview](#challenge-overview)  
     - [Part 1](#part-1-analyzeexplore-data)  
     - [Part 2](#part-2-design-climate-app)  
-4. [Summary Breakdowns](#summary-breakdowns)  
-5. [Expected Results](#expected-results)  
-    - [Queries](#queries)  
+4. [Queries](#queries)  
+    - [Static](#static)  
+        + [Precipitation (Inches)](#precipitation-inches---most-recent-year)
+        + [All Stations](#all-observing-stations-with-station-info)
+        + [Temperature Data (Most Active Station)](#temperature-data---most-recent-yearactive-station)
+    - [Dynamic](#dynamic)  
+        + [Temperature Data (Single Parameter)](#temperature-data---single-param)
+        + [Temperature Data (Dual Parameter)](#temperature-data---dual-param)
 
 > [!NOTE]  
 > All roleplaying instructions, rubric requirements, and Starter Code (with  
@@ -116,3 +121,162 @@ to create retrievable JSON objects. The following are the Flask App routes that 
     - Returns JSON of temperature minimum, average, and maximum for a given starting and ending date.  
 
 [:arrow_up: Return to TOC](#table-of-contents)  
+
+
+## Queries  
+Query results will return with nested metadata separately from query results within the same JSON object. The `json_setup()` function is made to setup the dictionary with one line of code, giving them all similar structures.  
+
+### Static  
+#### Precipitation (Inches) - Most recent year  
+```python  
+def precipitation_query():
+    '''Query for precipitation scores for last year of db'''
+    last_date = app.config['DELTA_YEAR']
+    sel = [
+        measurement.date
+        ,measurement.prcp
+    ]
+    with Session() as session: # Precipitation Scores
+        data = session.query(*sel
+            ).filter(measurement.date >= last_date
+            ).all()
+    data_nest = []
+    for date, prcp in data:
+        data_nest.append({date: prcp})
+    json_ready = json_setup(
+        route_prcp
+        ,data_nest
+        ,desc = 'Precipitation scores for last year of data.'
+    )
+    return jsonify(json_ready)
+```  
+
+
+#### All observing Stations (with station info)  
+```python  
+def stations_query():
+    '''Query for full list of stations'''
+    sel = [
+        station.station
+        ,station.name
+        ,station.latitude
+        ,station.longitude
+        ,station.elevation
+    ]
+    with Session() as session:
+        data = session.query(*sel).all()
+    data_nest = []
+    for id, name, latitude, longitude, elevation in data:
+        data_dict = {}
+        data_dict['id'] = id
+        data_dict['name'] = name
+        data_dict['lat'] = latitude
+        data_dict['lng'] = longitude
+        data_dict['elevation'] = elevation
+        data_nest.append(data_dict)
+    json_ready = json_setup(
+        route_stations
+        ,data_nest
+        ,desc = 'Full list of observation stations.'
+    )
+    return jsonify(json_ready)
+```  
+
+
+#### Temperature data - Most Recent Year/Active Station  
+```python  
+def tobs_query():
+    '''Query for last year of temp data for most active station'''
+    last_date = app.config['DELTA_YEAR']
+    station_count = func.count(measurement.station)
+    sel = [
+        measurement.station
+        ,station_count
+    ]
+    with Session() as session:
+        data = session.query(*sel
+            ).group_by(measurement.station
+            ).order_by(station_count.desc()
+            ).first()
+    most_active = data[0]
+    sel = [
+        measurement.date
+        ,measurement.tobs
+    ]
+    with Session() as session:
+        data = session.query(*sel
+            ).filter(measurement.station == most_active
+            ).filter(measurement.date >= last_date
+            ).all()
+    data_nest = []
+    for date, tobs in data:
+        data_dict = {}
+        data_dict['date'] = date
+        data_dict['tobs'] = tobs
+        data_nest.append(data_dict)
+    json_ready = json_setup(
+        route_tobs
+        ,data_nest
+        ,desc = 'Last year of temperature data for most active station.'
+    )
+    return jsonify(json_ready)
+```  
+
+### Dynamic  
+The following script the function shared between the two dynamic calls allowed for this API.  
+
+```python  
+def temp_byDate(start = None, end = None):
+    sel = [
+        func.min(measurement.tobs)
+        ,func.avg(measurement.tobs)
+        ,func.max(measurement.tobs)
+    ]
+    if start and (not end):
+        with Session() as session:
+            data = session.query(*sel
+                ).filter(measurement.date >= start)
+    elif start and end:
+        with Session() as session:
+            data = session.query(*sel
+                ).filter(measurement.date >= start
+                ).filter(measurement.date <= end)
+    else:
+        print('Sorry, this API call is not supported yet. ERROR 404')
+        abort(404)
+    data = data.first()
+    data_nest = {
+        'TMIN': data[0]
+        ,'TAVG': data[1]
+        ,'TMAX': data[2]
+    }
+    return data_nest
+```  
+
+
+#### Temperature data - Single Param  
+```python  
+def temp_filter_single(start):
+    data_nest = temp_byDate(start)
+    json_ready = json_setup(
+        route_start
+        ,data_nest
+        ,desc = 'Basic temperature stats (min, avg, max) for a specified starting date, ends at most recent date.'
+        ,params = {'start_date': start, 'end_date': None}
+    )
+    return jsonify(json_ready)
+```  
+
+
+#### Temperature data - Dual Param  
+```python  
+def temp_filter_double(start, end):
+    data_nest = temp_byDate(start, end)
+    json_ready = json_setup(
+        route_end
+        ,data_nest
+        ,desc = 'Basic temperature stats (min, avg, max) for a specified start and end date.'
+        ,params = {'start_date': start, 'end_date': end}
+    )
+    return jsonify(json_ready)
+```  
