@@ -19,7 +19,8 @@
 
 ## Introduction  
 Congratulations to me! I've decided to treat myself to a long holiday vacation in Honolulu, Hawaii. To help with my trip planning, I'm going to do a climate analysis about the area.  
-The following sections outline the steps that I'll need to take to accomplish this task.  
+In order to do so, I'll first use Jupyter Notebooks to write/run code in isolated code blocks so that I can experiment with my `SQL Alchemy` abstraction layer and ensure that I perform my queries correctly. I'll also do some basic analysis by using `Pandas` and `Matplotlib` to get a better grasp on my data and and provide a visual aid. Jupyter Notebook is excellent for testing purposes as it allows for easy running and printing of code blocks. This also means that after I ensure it's veracity, I can copy and paste desired queries inside of a regular python (.py) file to run as an executable!  
+That serves the purposes of this project very well, as after I finish exploring and doing my analysis of Hawaii's climate data I can create an application in a python file using `Flask` and `SQL Alchemy` to create APIs! `Flask` will allow for the exportation of python functions into specific webpage softlink routes, which can be filled with `SQL` queries performed with `SQL Alchemy`, as well as `HTML` and `CSS` code for any explanation or styling.  
 
 
 ## Setup & Usage  
@@ -86,9 +87,15 @@ The second part of this project is to create a functioning webpage based API tha
 like a normal API. This part actually combines the use of general use Python, SQL Alchemy, HTML, and CSS  
 to create retrievable JSON objects. The following are the Flask App routes that will be created.  
 
-1. (Route: /) Create a Homepage at the base route.  
-2. (Route: /api/v1.0/precipitation) Convert the query results from the precipitation analysis to a dictionary using the date and precipitation as key: value pairs and returns the JSON.  
-3. (Route: /api/v1.0/stations) Returns JSON of stations from the dataset.  
-4. (Route: /api/v1.0/tobs) Queries dates/temperatures for the most active station of the prior year and returns the JSON.  
-5. (Route: /api/v1.0/&lt;start&gt;) Returns JSON of temperature minimum, average, and maximum for a given starting date, which will end at the end of the database.  
-6. (Route: /api/v1.0/<start>/<end>) Returns JSON of temperature minimum, average, and maximum for a given starting and ending date.  
+1. **Route: /**  
+    - Create a Homepage at the base route.  
+2. **Route: /api/v1.0/precipitation**  
+    - Convert the query results from the precipitation analysis to a dictionary using the date and precipitation as key: value pairs and returns the JSON.  
+3. **Route: /api/v1.0/stations**  
+    - Returns JSON of stations from the dataset.  
+4. **Route: /api/v1.0/tobs**  
+    - Queries dates/temperatures for the most active station of the prior year and returns the JSON.  
+5. **Route: /api/v1.0/&lt;start&gt;**  
+    - Returns JSON of temperature minimum, average, and maximum for a given starting date, which will end at the end of the database.  
+6. **Route: /api/v1.0/<start>/<end>**  
+    - Returns JSON of temperature minimum, average, and maximum for a given starting and ending date.  
