@@ -39,11 +39,11 @@ That serves the purposes of this project very well, as after I finish exploring 
 
 
 ### Prerequisites  
-1. Python 3.x  
-- Standard libraries: `datetime` (included with Python)  
-- Non-standard library: `pandas`, `numpy`, `matplotlib`, `sqlalchemy`, and `Flask`  
-- IDE that supports Jupyter Notebooks with Python  
-- DBMS: **SQLite 3.49.0**  by way of --> **SQL Alchemy**  
+Python 3.x  
+   - Standard libraries: `datetime` (included with Python)  
+   - Non-standard library: `pandas`, `numpy`, `matplotlib`, `sqlalchemy`, and `Flask`  
+   - IDE that supports Jupyter Notebooks with Python  
+   - DBMS: **SQLite 3.49.0**  by way of --> **SQL Alchemy**  
 
 [:arrow_up: Return to TOC](#table-of-contents)  
 
@@ -150,6 +150,7 @@ def precipitation_query():
     )
     return jsonify(json_ready)
 ```  
+[:arrow_up: Return to TOC](#table-of-contents)  
 
 
 #### All observing Stations (with station info)  
@@ -181,6 +182,7 @@ def stations_query():
     )
     return jsonify(json_ready)
 ```  
+[:arrow_up: Return to TOC](#table-of-contents)  
 
 
 #### Temperature data - Most Recent Year/Active Station  
@@ -221,6 +223,8 @@ def tobs_query():
     )
     return jsonify(json_ready)
 ```  
+[:arrow_up: Return to TOC](#table-of-contents)  
+
 
 ### Dynamic  
 The following script the function shared between the two dynamic calls allowed for this API.  
@@ -252,6 +256,7 @@ def temp_byDate(start = None, end = None):
     }
     return data_nest
 ```  
+[:arrow_up: Return to TOC](#table-of-contents)  
 
 
 #### Temperature data - Single Param  
@@ -266,6 +271,7 @@ def temp_filter_single(start):
     )
     return jsonify(json_ready)
 ```  
+[:arrow_up: Return to TOC](#table-of-contents)  
 
 
 #### Temperature data - Dual Param  
@@ -280,3 +286,4 @@ def temp_filter_double(start, end):
     )
     return jsonify(json_ready)
 ```  
+[:arrow_up: Return to TOC](#table-of-contents)  
