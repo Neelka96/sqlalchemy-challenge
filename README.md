@@ -6,19 +6,15 @@
 
 ## Table of Contents  
 1. [Introduction](#introduction)  
-2. [Setup and Usage](#setup-and-usage)  
-    - [Prerequisites](#prerequisites)  
+2. [Setup & Usage](#setup--usage)  
+    - [Prerequisites](#prerequisites)
     - [Instructions](#instructions)  
-    - [Prerequisites & Instructions](#prerequisites--instructions)  
     - [Directory Structure](#directory-structure)  
-    - [Schema](#schema)  
 3. [Challenge Overview](#challenge-overview)  
     - [Part 1](#part-1-analyzeexplore-data)  
     - [Part 2](#part-2-design-climate-app)  
 4. [Summary Breakdowns](#summary-breakdowns)  
-5. [Entity Relationship Diagram](#entity-relationship-diagram-erd)  
-6. [Files and Directory Structure](#files-and-directory-structure)  
-7. [Expected Results](#expected-results)  
+5. [Expected Results](#expected-results)  
     - [Queries](#queries)  
 
 ## Introduction  
@@ -26,11 +22,59 @@ Congratulations to me! I've decided to treat myself to a long holiday vacation i
 The following sections outline the steps that I'll need to take to accomplish this task.  
 
 
+## Setup & Usage  
+
+### Prerequisites  
+1. Python 3.x  
+- Standard libraries: `datetime` (included with Python)  
+- Non-standard library: `pandas`, `numpy`, `matplotlib`, `sqlalchemy`, and `Flask`  
+- IDE that supports Jupyter Notebooks with Python  
+- DBMS: **SQLite 3.49.0**  by way of --> **SQL Alchemy**  
+
+[:arrow_up: Return to TOC](#table-of-contents)  
+
+### Instructions  
+
+1. Clone this repository and open it on your local device.  
+2. For `climate_analysis.ipynb` (Part 1):  
+    - Open `climate_analysis.ipynb` in your IDE and run all cells.  
+    - (Better viewing experience by using the 'Outline' tab in VSCode)  
+    - If the necessary dependencies aren't found, please install using one of the following methods (however pip is preferred):  
+        - `pip install <missing_library>`  
+        - `conda install <missing_library>` (use the channel of your choice if multiple are found)  
+3. For `app.py` (Part 2):  
+    - Open `app.py` using an integrated terminal and run using your python compiler (Version 3.x)  
+    - By use of `Flask` a local only webpage will be instantiated on a server on your computer  
+    - Perform any of the listed API calls using the webpage directly or by using a `requests.get()` method in python (as well in other languages that offer API extensions).  
+4. Enjoy!  
+
+[:arrow_up: Return to TOC](#table-of-contents)  
+
+
+### Directory Structure  
+```  
+sqlalchemy-challenge/  
+|  
+|—- SurfsUp/  
+|   |—- Resources/  
+|   |   —- hawaii_measurements.csv  
+|   |   -- hawaii_stations.csv  
+|   |   -- hawaii.sqlite  
+|   |  
+|   |—- app.py  
+|   |-- climate_analysis.ipynb  
+```  
+This structure ensures all inputs are organized within their respective folders.  
+
+[:arrow_up: Return to TOC](#table-of-contents)  
+
+
 ## Challenge Overview  
 The real purpose of this assignment is to explore using these technologies and methods in conjunction with each other, but within the scope of the project the purpose is the creation of multiple APIs that allow for calling to retrieve live JSON representation of queried data.  
 
 ### Part 1: Analyze/Explore Data  
-First off, I'll need to use Python and SQLAlchemy to do a basic climate analysis and data exploration of my climate database. Specifically, I'll use SQLAlchemy's ORM to perform queries, Pandas for easy manipulation, and Matplotlib for visualization. The following list outlines steps taken to perform exploration and analysis:  
+First off, I'll need to use Python and SQLAlchemy to do a basic climate analysis and data exploration of my climate database. Specifically, I'll use SQLAlchemy's ORM to perform queries, Pandas for easy manipulation, and Matplotlib for visualization.  
+The following list outlines steps taken to perform exploration and analysis:  
 
 1. Use SQLAlchemy method create_engine() to connect to the SQLite database.  
 2. Use SQLAlchemy method automap_base() to reflect tables into classes and save references to the classes.  
@@ -40,7 +84,8 @@ First off, I'll need to use Python and SQLAlchemy to do a basic climate analysis
 ### Part 2: Design Climate App  
 The second part of this project is to create a functioning webpage based API that can be called  
 like a normal API. This part actually combines the use of general use Python, SQL Alchemy, HTML, and CSS  
-to create retrievable JSON objects. The following are the stepped routes that will be created.  
+to create retrievable JSON objects. The following are the Flask App routes that will be created.  
+
 1. (Route: /) Create a Homepage at the base route.  
 2. (Route: /api/v1.0/precipitation) Convert the query results from the precipitation analysis to a dictionary using the date and precipitation as key: value pairs and returns the JSON.  
 3. (Route: /api/v1.0/stations) Returns JSON of stations from the dataset.  
